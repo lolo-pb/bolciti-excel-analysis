@@ -1,2 +1,8 @@
+import pandas as pd
+
 #backend
-print("Hello World! back")
+
+df = pd.read_excel("res/exportacion.xlsx", header=5)
+print(df.head())
+print(len(df))
+

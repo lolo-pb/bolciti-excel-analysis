@@ -5,7 +5,8 @@ import pandas as pd
 ## Processing raw input
 
 # Extract data frames from excel files
-sueldos_blancos = pd.read_excel("res/exportacion.xlsx", header=5)
+sueldos_negros = pd.read_excel("res/sueldos-s2.xlsx", header=5)
+sueldos_blancos = pd.read_excel("res/sueldos-sg.xlsx", header=5)
 
 # Standardizes colum names
 sueldos_blancos.columns = (

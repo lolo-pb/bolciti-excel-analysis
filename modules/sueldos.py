@@ -22,6 +22,7 @@ SECTION_MAP = {
 
     # Echado
     "MATIAS LEONARDO MORENO": "echado",
+    #"BRIZUELA HERNAN":"",
 
     # Oficina
     "CARLOS GUSTAVO CAPPONI": "oficina",
@@ -30,10 +31,10 @@ SECTION_MAP = {
 
     # General
     "COLINA POLANCO ALAIN ANTONIO": "gral",
+    #"BRIAN NAHUEL SOTO":"",
+
 
     ## Desconocidos caen en gral
-    #"BRIAN NAHUEL SOTO":"",
-    #"BRIZUELA HERNAN":"",
     #"COLINA POLANCO ALAIN ANTONIO":"",
     #"LEONARDO LEDESMA":"",
     #"ROSA BEATRIZ DI PAOLO":"",
@@ -42,8 +43,7 @@ SECTION_MAP = {
 
 
 
-def build_sueldos_by_section() -> pd.DataFrame:
-
+def build_sueldos_by_employee() -> pd.DataFrame:
     ## Processing raw input
 
     # Extract data frames from excel files
@@ -98,6 +98,11 @@ def build_sueldos_by_section() -> pd.DataFrame:
     sueldos = sueldos.sort_values(["seccion", "empleado"]).reset_index(drop=True)
     #print(sueldos.to_string(index=False))
 
+    return sueldos
+
+def build_sueldos_by_section() -> pd.DataFrame:
+
+    sueldos = build_sueldos_by_employee()
 
     month_cols = sueldos.columns.difference(["seccion", "empleado"])
 

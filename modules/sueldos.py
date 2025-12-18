@@ -22,7 +22,7 @@ SECTION_MAP = {
 
     # Echado
     "MATIAS LEONARDO MORENO": "echado",
-    #"BRIZUELA HERNAN":"",
+    "BRIZUELA HERNAN":"echado",
 
     # Oficina
     "CARLOS GUSTAVO CAPPONI": "oficina",
@@ -31,7 +31,7 @@ SECTION_MAP = {
 
     # General
     "COLINA POLANCO ALAIN ANTONIO": "gral",
-    #"BRIAN NAHUEL SOTO":"",
+    "BRIAN NAHUEL SOTO":"gral",
 
 
     ## Desconocidos caen en gral

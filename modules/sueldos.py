@@ -1,5 +1,5 @@
 import pandas as pd
-from helpers import standardize_columns, normalize_names
+from modules.helpers import standardize_columns, normalize_names
 
 SECTION_ORDER = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]
 SECTION_MAP = {

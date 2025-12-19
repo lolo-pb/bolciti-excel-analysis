@@ -8,8 +8,7 @@ def main():
         #print(sueldos.to_string(index=False))
 
         gastos = build()
-        print(gastos.head())
-        print(gastos.dtypes)
+        print(gastos.to_string(index=False))
 
 if __name__ == "__main__":
     main()

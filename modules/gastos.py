@@ -1,5 +1,5 @@
 import pandas as pd
-from modules.helpers import standardize_columns
+from modules.helpers import standardize_columns, pivot_by_period
 
 
 
@@ -23,6 +23,7 @@ def build() -> pd.DataFrame:
     ## Join both black and white gastos
     gastos = pd.concat([gastos_blancos, gastos_negros],ignore_index=True)
 
+    gastos = pivot_by_period(gastos,"fecha","tipo_gasto","total")
 
 
     return gastos

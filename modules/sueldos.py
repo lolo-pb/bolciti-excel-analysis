@@ -1,5 +1,5 @@
 import pandas as pd
-from modules.helpers import standardize_columns, normalize_names
+from modules.helpers import standardize_columns, normalize_names, pivot_by_period
 
 SECTION_ORDER = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]
 SECTION_MAP = {
@@ -80,13 +80,7 @@ def build_sueldos_by_employee() -> pd.DataFrame:
     sueldos["mes"] = sueldos["fecha_cierre"].dt.to_period("M")
 
     # pivot: one column per month, totals summed
-    sueldos = sueldos.pivot_table(
-        index=["seccion","empleado"],
-        columns="mes",
-        values="total",
-        aggfunc="sum",
-        fill_value=0
-    ).reset_index()
+    sueldos = pivot_by_period(sueldos,"fecha_cierre",["seccion", "empleado"],"total")
 
     # order rows by section (custom order) and then employee
     section_order = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]

@@ -81,9 +81,14 @@ def build() -> pd.DataFrame:
 
     # Map secciones
     gastos["seccion"] = gastos["tipo_gasto"].map(SECTION_MAP).fillna("otros")
+
+    gastos["seccion"] = pd.Categorical(
+            gastos["seccion"], categories=SECTION_ORDER, ordered=True
+        )
+    gastos = gastos.sort_values("seccion")
+
     return gastos
 
     gastos = pivot_by_period(gastos,"fecha","seccion","total")
-
 
     return gastos

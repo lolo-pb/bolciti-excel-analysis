@@ -79,9 +79,8 @@ def build_sueldos_by_employee() -> pd.DataFrame:
     sueldos = pivot_by_period(sueldos,"fecha_cierre",["seccion", "empleado"],"total")
 
     # order rows by section (custom order) and then employee
-    section_order = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]
     sueldos["seccion"] = pd.Categorical(
-        sueldos["seccion"], categories=section_order, ordered=True
+        sueldos["seccion"], categories=SECTION_ORDER, ordered=True
     )
 
     #### done

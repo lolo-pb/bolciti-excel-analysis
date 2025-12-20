@@ -73,12 +73,7 @@ def build_sueldos_by_employee() -> pd.DataFrame:
     # Adds seccion
     sueldos["seccion"] = sueldos["empleado"].map(SECTION_MAP).fillna("gral")
 
-
-
     ## Ordering and styling of output table
-
-    # Asign a month by entry
-    sueldos["mes"] = sueldos["fecha_cierre"].dt.to_period("M")
 
     # pivot: one column per month, totals summed
     sueldos = pivot_by_period(sueldos,"fecha_cierre",["seccion", "empleado"],"total")

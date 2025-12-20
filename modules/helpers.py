@@ -1,5 +1,7 @@
 import pandas as pd
 from typing import List
+from typing import Iterable
+
 
 def standardize_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
@@ -48,3 +50,8 @@ def pivot_by_period(
     return pivot
 
 
+def sanitize( df: pd.DataFrame, descriptor_cols: Iterable[str]) -> pd.DataFrame:
+
+    mask_bad = (df.copy()[list(descriptor_cols)].isna().all(axis=1))
+    
+    return df[~mask_bad]

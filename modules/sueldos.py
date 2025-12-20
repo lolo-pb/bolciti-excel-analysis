@@ -1,5 +1,5 @@
 import pandas as pd
-from modules.helpers import standardize_columns, normalize_names, pivot_by_period
+from modules.helpers import sanitize, standardize_columns, normalize_names, pivot_by_period
 
 SECTION_ORDER = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]
 SECTION_MAP = {
@@ -67,6 +67,7 @@ def build_sueldos_by_employee() -> pd.DataFrame:
 
     # Normalizes 
     sueldos["fecha_cierre"] = pd.to_datetime(sueldos["fecha_cierre"], errors="coerce")
+    sueldos = sanitize(sueldos,[ "fecha_cierre", "empleado"])
     sueldos["empleado"] = normalize_names(sueldos["empleado"])
 
     # Adds seccion

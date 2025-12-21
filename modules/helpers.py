@@ -81,7 +81,7 @@ def add_totals_and_result(
     seccion_col: str = "seccion",
     fact_row_label: str = "facturacion",
     total_spend_label: str = "gastos_total",
-    result_label: str = "resultado",
+    result_label: str = "ganancia",
     total_col_name: str = "TOTAL",
 ) -> pd.DataFrame:
     """

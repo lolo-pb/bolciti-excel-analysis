@@ -1,6 +1,6 @@
 from modules.sueldos import build_sueldos_by_section, build_sueldos_by_employee
 from modules.gastos import build_gastos_by_section
-from modules.facturacion import  build_facturas_total
+from modules.facturacion import  build_facturas_total, build_facturas_por_cliente
 from modules.helpers import join_pivots
 
 ###  Esto deberia llamar a los modules y cada module deberia devolver las 
@@ -15,7 +15,7 @@ def main():
         #print(gastos.to_string(index=False))
 
         #print("=====================================================================")
-
+        #facturas = build_facturas_por_cliente()
         facturas =build_facturas_total()
         print(facturas.to_string(index=False))
         #print(facturas.head())

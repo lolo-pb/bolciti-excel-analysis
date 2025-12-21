@@ -35,13 +35,10 @@ SECTION_MAP = {
 
 
     ## Desconocidos caen en gral
-    #"COLINA POLANCO ALAIN ANTONIO":"",
     #"LEONARDO LEDESMA":"",
     #"ROSA BEATRIZ DI PAOLO":"",
     #"SERGIO DAMIAN ARRIETA ":"",
 }
-
-
 
 def build_sueldos_by_employee() -> pd.DataFrame:
     ## Processing raw input
@@ -85,7 +82,6 @@ def build_sueldos_by_employee() -> pd.DataFrame:
 
     #### done
     sueldos = sueldos.sort_values(["seccion", "empleado"]).reset_index(drop=True)
-    #print(sueldos.to_string(index=False))
 
     return sueldos
 

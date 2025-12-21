@@ -112,7 +112,7 @@ SECTION_MAP = {
 
 
 
-def build() -> pd.DataFrame:
+def build_gastos_by_section() -> pd.DataFrame:
     ## Processing raw input
 
     # Extract data frames from excel files
@@ -144,8 +144,6 @@ def build() -> pd.DataFrame:
             gastos["seccion"], categories=SECTION_ORDER, ordered=True
         )
     gastos = gastos.sort_values("seccion")
-
-    #return gastos
 
     gastos = pivot_by_period(gastos,"fecha","seccion","total")
 

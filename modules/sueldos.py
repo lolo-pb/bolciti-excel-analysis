@@ -1,5 +1,5 @@
 import pandas as pd
-from modules.helpers import standardize_columns, normalize_names
+from modules.helpers import sanitize, standardize_columns, normalize_names, pivot_by_period
 
 SECTION_ORDER = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]
 SECTION_MAP = {
@@ -67,31 +67,20 @@ def build_sueldos_by_employee() -> pd.DataFrame:
 
     # Normalizes 
     sueldos["fecha_cierre"] = pd.to_datetime(sueldos["fecha_cierre"], errors="coerce")
+    sueldos = sanitize(sueldos,[ "fecha_cierre", "empleado"])
     sueldos["empleado"] = normalize_names(sueldos["empleado"])
 
     # Adds seccion
     sueldos["seccion"] = sueldos["empleado"].map(SECTION_MAP).fillna("gral")
 
-
-
     ## Ordering and styling of output table
 
-    # Asign a month by entry
-    sueldos["mes"] = sueldos["fecha_cierre"].dt.to_period("M")
-
     # pivot: one column per month, totals summed
-    sueldos = sueldos.pivot_table(
-        index=["seccion","empleado"],
-        columns="mes",
-        values="total",
-        aggfunc="sum",
-        fill_value=0
-    ).reset_index()
+    sueldos = pivot_by_period(sueldos,"fecha_cierre",["seccion", "empleado"],"total")
 
     # order rows by section (custom order) and then employee
-    section_order = ["confeccion", "impresion", "extrusion", "echado", "oficina", "gral"]
     sueldos["seccion"] = pd.Categorical(
-        sueldos["seccion"], categories=section_order, ordered=True
+        sueldos["seccion"], categories=SECTION_ORDER, ordered=True
     )
 
     #### done

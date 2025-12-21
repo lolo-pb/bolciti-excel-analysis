@@ -56,10 +56,8 @@ def build_sueldos_by_employee() -> pd.DataFrame:
     sueldos_negros = sueldos_negros[[ "fecha_cierre", "empleado", "total"]]
 
 
-
     ## Join both black and white sueldos
     sueldos = pd.concat([sueldos_blancos, sueldos_negros],ignore_index=True)
-
 
 
     # Normalizes 

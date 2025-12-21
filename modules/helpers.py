@@ -50,8 +50,8 @@ def pivot_by_period(
 
     return pivot
 
-
 def sanitize( df: pd.DataFrame, descriptor_cols: Iterable[str]) -> pd.DataFrame:
+    '''Removes the rows that have nan in the selected columns'''
 
     mask_bad = (df.copy()[list(descriptor_cols)].isna().all(axis=1))
     

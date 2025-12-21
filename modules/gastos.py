@@ -1,57 +1,115 @@
 import pandas as pd
 from modules.helpers import sanitize, standardize_columns, pivot_by_period, normalize_names
 
-SECTION_ORDER = ["alquiler", "electricidad", "fletes", "material", "maquinas", "vehiculos", "servicios", "otros"]
+SECTION_ORDER = [ "alquiler" , "honorarios", "contabilidad" , "inversiones", "fletes"   , "logistica",
+                  "vehiculos", "maquinas"  , "mantenimiento", "material"   , "servicios", "otros"    ,]
+
 SECTION_MAP = {
-    # LOGÍSTICA
+    # FLETES
     "FLETES": "fletes",
 
-    # SERVICIOS 
+    # LOGISTICA
+    "PEAJE": "logistica",
+    "GASTOS DE VIAJES": "logistica",
+    "PLAYA DE ESTACIONAMIENTO": "logistica",
+
+    # SERVICIOS
     "SERVICIOS": "servicios",
-    "HONORARIOS": "servicios",
-    "TAREAS CONTABLES": "servicios",
-    "ASESORAMIENTO JURIDICO": "servicios",
-    "LABORATORIO DE MEDICINA": "servicios",
-    "ELECTRICISTA": "servicios",
+    "GASTOS DE ELECTRICIDAD": "servicios",
+    "SERVICIO DE COMEDOR EN PLANTA": "servicios",
+    "SERVICIO EXTERNO EN SEGURIDAD , HIGIENE Y MEDIO AMBIENTE": "servicios",
     
-    #MAQUINAS
+    # MANTENIMIENTO
+    "SERVICIOS DE COMPRESORES": "mantenimiento",
+    "SERVICIO DEL TECHISTA": "mantenimiento",
+    "HERRERIA": "mantenimiento",
+    "CERRAJERIA VS": "mantenimiento",
+    "ARTICULO DE FERRETERIA": "mantenimiento",
+    "MATERALES ELECTRICOS": "mantenimiento",
+    "GASTOS PLOMERIA": "mantenimiento",
+
+
+    # MAQUINAS
     "SERVICIO TECNICO DE LA EXTRUSORA": "maquinas",
     "REPARACION TROQUELADOR MAQ CONFECCION": "maquinas",
     "REPUESTOS DE MAQUINARIAS": "maquinas",
+    "COMPRA MAQUINARIA": "maquinas",
+    "COMPRA DE MAQUINARIAS EXTRUXSORA": "maquinas",
+    "MAQUINA HIDRO-ELEVADORA": "maquinas",
+    "ELEVEDADOR HIDRAULICO": "maquinas",
+    "SCHUSTER MAQUINARIAS": "maquinas",
+    "TROQUELES PARA MAQ. CAMISETAS": "maquinas",
+    "ACCESORIOS PARA MAQUINA": "maquinas",
 
-    # AGUA / GAS / LUZ
-    "GASTOS DE ELECTRICIDAD": "electricidad",
+    # CONTABILIDAD
+    "TAREAS CONTABLES": "contabilidad",
+    "ASESORAMIENTO JURIDICO": "contabilidad",
+    "ACTAS MUNICIPALES": "contabilidad",
+    "IMPUESTOS": "contabilidad",
+    "INTERESES": "contabilidad",
+    "CHEQUE RECHAZADO": "contabilidad",
+    "CHEQUES RECHAZADOS": "contabilidad",
+    "NOTA DE CREDITO": "contabilidad",
+    "NOTAS DE DEBITOS AJUSTES CTA CTE": "contabilidad",
 
-    # COMBUSTIBLE / VEHÍCULOS
+    # HONORARIOS
+    "HONORARIOS": "honorarios",
+
+    # VEHICULOS
     "COMBUSTIBLE": "vehiculos",
     "LAVADO DE CAMIONETA": "vehiculos",
     "REPUESTOS CAMIONETA": "vehiculos",
+    "COMPRA DE CAMIONETA": "vehiculos",
+    "PASTILLAS DE FRENO": "vehiculos",
 
-    #MATERIALES
+    # MATERIALES
     "CONOS PARA BOBINAS DE CARTON": "material",
-    "RECUPERADO BLANCO DE JOSE": "material",
     "LAMINA BICARBONATO S/IMPRESION": "material",
     "POLIMEROS": "material",
     "POLIETILENO BOBINAS": "material",
-    "CILINDROS": "material",
+    "POLIETILENO BOLSAS": "material",
+    "POLIETILENO LINEAL": "material",
+    "POLIETILENO ALTA DENSIDAD": "material",
+    "POLIETILENO BICAPA": "material",
+    "FILM POLIETILENO S/ IMPRESION": "material",
+    "KG FILM PP": "material",
+    "KG PE AD CRISTAL": "material",
+    "KG PE ALTA VIRGEN": "material",
+    "PE AD BLANCO RECUPERADO": "material",
+    "BD RECUPERADO CRISTAL": "material",
+    "BD GRUESO BG 6025": "material",
+    "RECUPERADO GRUMO BLANCO BD": "material",
+    "FASON DE RECUPERADO": "material",
+    "SCRAP": "material",
+    "GRUMO": "material",
+    "ADICTIVOS": "material",
+    "TINTAS Y DILUYENTES": "material",
+    "PEGAMENTO": "material",
+    "BOBINAS DE ARRANQUE": "material",
+    "BOBINAS DE PP": "material",
+    "BOBINAS OP IMPRESAS": "material",
+    "BOBINAS RECUPERADO CECEPLAS": "material",
+    "BOBINAS AMARILLA 87/ 75 CON FUELLE": "material",
+    "BOBINAS CARAMELO C/ FUELLE": "material",
+    "BOLSAS PP CRISTAL": "material",
+    "BOLSAS ZIPLOC C/ BANDAS ADH.": "material",
+    "PAPEL Y CARTON": "material",
+    "ARTICULOS DE PAPEL Y CARTON": "material",
+    "TUBOS DE CARTON": "material",
+    "TELA DE TEFLON": "material",
+    "TELA DE TEFLON DE 127 MICRONES": "material",
+    "MASTER": "material",
 
 
-    #ALQUILER
+    # ALQUILER
     "ALQUILER": "alquiler",
+    "ABONO MENSUAL ALQUILER": "alquiler",
+    "LEASING": "alquiler",
 
-    #OTROS
-    "GASTOS PLOMERIA": "otros",
-    "ART. DE ELECTRICIDAD E INSTALACION SISTEMA": "otros",
-    "MATERIALES DE CONSTRUCCION": "otros",
-    "LIBRERIA": "otros",
-    "SISTEMA DE SEGURIDAD": "otros",
-    "MATERALES ELECTRICOS": "otros",
-    "SISTEMAS DE ALARMA": "otros",
-    "JORNADAS DE CAPACITACION": "otros",
-    "VARIOS": "otros",
-    "GASTOS VARIOS": "otros",
-    
+    # INVERSIONES
+    "INVERSIONES": "inversiones",
 }
+
 
 
 def build() -> pd.DataFrame:
@@ -87,7 +145,7 @@ def build() -> pd.DataFrame:
         )
     gastos = gastos.sort_values("seccion")
 
-    return gastos
+    #return gastos
 
     gastos = pivot_by_period(gastos,"fecha","seccion","total")
 

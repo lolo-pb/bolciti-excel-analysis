@@ -44,7 +44,8 @@ def pivot_by_period(
         columns="period",
         values=value_col,
         aggfunc="sum",
-        fill_value=fill_value
+        fill_value=fill_value,
+        observed=False
     ).reset_index()
 
     return pivot

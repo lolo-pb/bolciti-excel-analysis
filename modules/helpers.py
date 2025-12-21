@@ -73,3 +73,61 @@ def join_pivots(df_a: pd.DataFrame, df_b: pd.DataFrame, fill_value=0) -> pd.Data
     out = out.fillna(fill_value)
 
     return out.reset_index()
+
+
+def add_totals_and_result(
+    spendings: pd.DataFrame,
+    facturacion: pd.DataFrame,
+    seccion_col: str = "seccion",
+    fact_row_label: str = "facturacion",
+    total_spend_label: str = "gastos_total",
+    result_label: str = "resultado",
+    total_col_name: str = "TOTAL",
+) -> pd.DataFrame:
+    """
+    spendings: pivot table with rows=seccion, cols=months (YYYY-MM), values=spendings
+    facturacion: pivot table with one row OR a dataframe containing month columns
+                (it can have 'concepto' or 'cliente' etc; we only take the month columns)
+    """
+
+    out = spendings.copy()
+
+    # Identify month columns (everything except seccion)
+    month_cols = [c for c in out.columns if c != seccion_col]
+
+    # --- TOTAL column per row (sum across months)
+    out[total_col_name] = out[month_cols].sum(axis=1)
+
+    # --- Total spendings row (sum across all spendings rows, per month)
+    total_spend_series = out[month_cols].sum(axis=0)
+    total_spend_row = pd.DataFrame(
+        [[total_spend_label] + total_spend_series.tolist() + [total_spend_series.sum()]],
+        columns=[seccion_col] + month_cols + [total_col_name],
+    )
+
+    # --- Facturacion row (align columns; supports 1-row df)
+    # Take only month columns that exist in spendings, fill missing with 0
+    fact_months = [c for c in facturacion.columns if c in month_cols]
+
+    # If facturacion has multiple rows, sum them (safe default)
+    fact_series = facturacion[fact_months].sum(axis=0)
+
+    # Ensure all months exist
+    fact_series = fact_series.reindex(month_cols).fillna(0)
+
+    fact_row = pd.DataFrame(
+        [[fact_row_label] + fact_series.tolist() + [fact_series.sum()]],
+        columns=[seccion_col] + month_cols + [total_col_name],
+    )
+
+    # --- Resultado row = facturacion - total spendings (per month)
+    result_series = fact_series - total_spend_series.reindex(month_cols).fillna(0)
+    result_row = pd.DataFrame(
+        [[result_label] + result_series.tolist() + [result_series.sum()]],
+        columns=[seccion_col] + month_cols + [total_col_name],
+    )
+
+    # Append rows
+    final = pd.concat([out, total_spend_row, fact_row, result_row], ignore_index=True)
+
+    return final

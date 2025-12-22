@@ -35,10 +35,38 @@ def _set_date_jquery_ui(page, input_selector: str, target: date):
 
     dp.get_by_role("link", name=str(target.day), exact=True).click()
 
+from datetime import date
+
+def _set_date_by_string(page, input_selector: str, target: date):
+    # 1) Make sure the element exists first
+    page.wait_for_selector(input_selector, state="attached", timeout=30_000)
+
+    value = target.strftime("%d/%m/%Y")  # adjust if the site expects another format
+
+    # 2) Set the value + fire events
+    page.evaluate(
+        """({ selector, value }) => {
+            const input = document.querySelector(selector);
+            if (!input) {
+              throw new Error("Input not found for selector: " + selector);
+            }
+            input.value = value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }""",
+        {"selector": input_selector, "value": value},
+    )
+
+    # 3) (Optional but useful) verify it actually changed
+    actual = page.locator(input_selector).input_value()
+    if actual.strip() != value:
+        raise RuntimeError(f"Date did not stick. Wanted '{value}', got '{actual}'")
+
+
 
 def _export_report(page, from_input: str, to_input: str, start: date, end: date, out_path: Path):
-    _set_date_jquery_ui(page, from_input, start)
-    _set_date_jquery_ui(page, to_input, end)
+    _set_date_by_string(page, from_input, start)
+    _set_date_by_string(page, to_input, end)
     page.get_by_role("button", name="Filtrar").click()
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

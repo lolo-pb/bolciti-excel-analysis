@@ -6,7 +6,8 @@ from playwright.sync_api import sync_playwright
 
 load_dotenv()
 
-BASE_URL = "https://nube2.sipe.com.ar/Bolciti2/Default.aspx?codigo=frmSueldosPagosLista"
+BASE_URL_S2 = "https://nube2.sipe.com.ar/Bolciti2/Default.aspx?nwflowId=NavegacionWorkflow152402497&codigo=frmHome"
+BASE_URL_SG = "https://nube2.sipe.com.ar/Bolciti/Default.aspx?nwflowId=NavegacionWorkflow1203130143&codigo=frmHome"
 RES_DIR = Path("res")
 
 
@@ -84,25 +85,29 @@ def _open_menu_section(page, text: str):
     loc.scroll_into_view_if_needed()
     loc.click(timeout=60_000)
 
+def scrape_exports(start: date, end: date):
+    _clear_res_folder()
+    scrape_exports_url(start,end,BASE_URL_S2,"s2")
+    scrape_exports_url(start,end,BASE_URL_SG,"sg")
+    
 
-def scrape_exports(start: date, end: date) -> dict[str, Path]:
+def scrape_exports_url(start: date, end: date, url, name: str) -> dict[str, Path]:
     """
     Clears res/*.xls[x], logs in, exports the 3 Excel files into res/, returns their paths.
     """
-    print("Retrieving files...")
+    print("Retrieving files from")
+    print(url)
+    print("...")
 
     user = os.environ["APP_USER"]
     pw = os.environ["APP_PASS"]
 
-    _clear_res_folder()
-
     ym = f"{start.year}-{start.month:02d}"  # just for naming
     outputs = {
-        "sueldos": RES_DIR / "sueldos-s2.xlsx",
-        "ventas_facturas": RES_DIR / "facturas-s2.xlsx",
-        "compras_gastos": RES_DIR / "gastos-s2.xlsx",
+        "sueldos": RES_DIR / f"sueldos-{name}.xlsx",
+        "ventas_facturas": RES_DIR / f"facturas-{name}.xlsx",
+        "compras_gastos": RES_DIR / f"gastos-{name}.xlsx",
     }
-    
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -111,7 +116,7 @@ def scrape_exports(start: date, end: date) -> dict[str, Path]:
 
         try:
             # Login
-            page.goto(BASE_URL)
+            page.goto(url)
             page.locator("#ctl00_ContentPlaceHolder1_UsuarioTX").fill(user)
             page.locator("#ctl00_ContentPlaceHolder1_ClaveTX").fill(pw)
             page.get_by_role("button", name="Ingresar").click()

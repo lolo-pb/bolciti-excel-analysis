@@ -14,7 +14,6 @@ def main():
 
     # 2) Process files from res/ and write outputs
     p.run_processor()
-
-
+    
 if __name__ == "__main__":
     main()

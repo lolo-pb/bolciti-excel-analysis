@@ -68,10 +68,11 @@ def scrape_exports(start: date, end: date) -> dict[str, Path]:
 
     ym = f"{start.year}-{start.month:02d}"  # just for naming
     outputs = {
-        "sueldos": RES_DIR / f"sueldos_{ym}.xlsx",
-        "ventas_facturas": RES_DIR / f"ventas_facturas_{ym}.xlsx",
-        "compras_gastos": RES_DIR / f"compras_gastos_{ym}.xlsx",
+        "sueldos": RES_DIR / "sueldos-s2.xlsx",
+        "ventas_facturas": RES_DIR / "facturas-s2.xlsx",
+        "compras_gastos": RES_DIR / "gastos-s2.xlsx",
     }
+    
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)

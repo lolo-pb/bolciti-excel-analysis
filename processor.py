@@ -50,4 +50,3 @@ def run_processor():
         print("Done:")
         print("Exported:", output_path)
         return
-run_processor()

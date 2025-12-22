@@ -5,7 +5,8 @@ import processor as p
 
 def main():
     # Hardcoded period
-    start = date(2025, 12, 1)
+    # YY/MM/DD
+    start = date(2025, 1, 1)
     end = date(2025, 12, 31)
 
     # 1) Download + rename into res/

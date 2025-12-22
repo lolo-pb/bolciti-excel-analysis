@@ -89,6 +89,8 @@ def scrape_exports(start: date, end: date) -> dict[str, Path]:
     """
     Clears res/*.xls[x], logs in, exports the 3 Excel files into res/, returns their paths.
     """
+    print("Retrieving files...")
+
     user = os.environ["APP_USER"]
     pw = os.environ["APP_PASS"]
 
@@ -103,7 +105,7 @@ def scrape_exports(start: date, end: date) -> dict[str, Path]:
     
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
 
@@ -159,4 +161,5 @@ def scrape_exports(start: date, end: date) -> dict[str, Path]:
             context.close()
             browser.close()
 
+    print("Done")
     return outputs

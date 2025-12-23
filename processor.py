@@ -9,7 +9,7 @@ from modules.helpers import join_pivots, add_totals_and_result
 
 ###  Esto deberia llamar a los modules y cada module deberia devolver las 
 ### tablas divididas por mes/ o dividirlas en el main?
-def run_processor():
+def run_processor(output_path: Path):
         print("Processor running...")
 
         sueldos = build_sueldos_by_section()
@@ -29,7 +29,6 @@ def run_processor():
         #print(final.to_string(index=False))
 
 
-        output_path = Path("out/resumen_financiero.xlsx")
         output_path.parent.mkdir(parents=True, exist_ok=True)   
 
         with pd.ExcelWriter(output_path, engine="openpyxl") as writer:

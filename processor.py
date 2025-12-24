@@ -5,6 +5,7 @@ from pathlib import Path
 from modules.sueldos import build_sueldos_by_section, build_sueldos_by_employee
 from modules.gastos import build_gastos_by_section
 from modules.facturacion import  build_facturas_total, build_facturas_por_cliente
+from modules.stock import build_stock
 from modules.helpers import join_pivots, add_totals_and_result
 
 ###  Esto deberia llamar a los modules y cada module deberia devolver las 
@@ -22,12 +23,12 @@ def run_processor(output_path: Path):
         facturas =build_facturas_total()
         #print(facturas.to_string(index=False))
         
+        stock = build_stock()
 
         resumen_spendings = join_pivots(gastos, sueldos)
+        resumen_spendings = join_pivots(resumen_spendings, stock, b_label="stock")
         final = add_totals_and_result(resumen_spendings, facturas)
-
         #print(final.to_string(index=False))
-
 
         output_path.parent.mkdir(parents=True, exist_ok=True)   
 
@@ -49,3 +50,4 @@ def run_processor(output_path: Path):
         print("Done:")
         print("Exported:", output_path)
         return
+run_processor(Path("out/resumen_financiero.xlsx"))

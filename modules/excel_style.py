@@ -36,7 +36,11 @@ def style_financial_sheet(
     ws = wb[sheet_name]
 
     # --- styles
+    zebra_fill = PatternFill("solid", fgColor="02D4C6")
     header_fill = PatternFill("solid", fgColor="D9D9D9")
+    label_gray = PatternFill("solid", fgColor="E6E6E6")        
+    label_gray_dark = PatternFill("solid", fgColor="CFCFCF")  
+    darker_labels = {"confeccion","impresion","extrusion","echado","oficina","gral",}
     bold = Font(bold=True)
 
     thin_side = Side(style="thin")
@@ -82,6 +86,30 @@ def style_financial_sheet(
             cell.number_format = money_format
             cell.alignment = right
 
+    # --- zebra striping (even rows only, excluding header)
+    for r in range(header_row + 1, max_row + 1):
+        # Excel rows: apply to even-numbered data rows
+        if (r - header_row) % 2 == 0:
+            for c in range(1, max_col + 1):
+                ws.cell(row=r, column=c).fill = zebra_fill
+
+    # --- gray background for label column (index / seccion)
+    for r in range(header_row + 1, max_row + 1):
+        cell = ws.cell(row=r, column=label_col)
+        label = cell.value
+    
+        if not isinstance(label, str):
+            continue
+        
+        label_key = label.strip().lower()
+    
+        # darker gray for selected sections
+        if label_key in darker_labels:
+            cell.fill = label_gray_dark
+            cell.font = Font(bold=True)
+        else:
+            cell.fill = label_gray
+    
     # --- highlight special rows by label text (first column)
     for r in range(header_row + 1, max_row + 1):
         label = ws.cell(row=r, column=label_col).value

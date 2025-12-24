@@ -58,21 +58,47 @@ def sanitize( df: pd.DataFrame, descriptor_cols: Iterable[str]) -> pd.DataFrame:
     return df[~mask_bad]
 
 
-def join_pivots(df_a: pd.DataFrame, df_b: pd.DataFrame, fill_value=0) -> pd.DataFrame:
-    # make sure seccion is index so concat aligns by month columns
-    a = df_a.set_index("seccion")
-    b = df_b.set_index("seccion")
+def join_pivots(a: pd.DataFrame, b: pd.DataFrame, *, key: str = "seccion", b_label: str | None = None) -> pd.DataFrame:
+    a = a.copy()
+    b = b.copy()
 
-    # union rows + union columns
-    out = pd.concat([a, b], axis=0, sort=True)
+    # 1) Normalize the "key" column name on both sides
+    def ensure_key(df: pd.DataFrame, label: str | None) -> pd.DataFrame:
+       if "seccion" in df.columns:
+           return df
 
-    # consistent column order (chronological)
-    out = out.reindex(sorted(out.columns), axis=1)
+       # common case: pivot_by_period(index_cols=[]) gives an "index" column
+       if "index" in df.columns:
+           df = df.rename(columns={"index": "seccion"})
+           if label is not None:
+               df["seccion"] = label   # ✅ force label (so "total" becomes "stock")
+           return df
 
-    # fill missing month cells
-    out = out.fillna(fill_value)
+       # fallback: create seccion
+       df.insert(0, "seccion", label if label is not None else "total")
+       return df
 
-    return out.reset_index()
+    a = ensure_key(a, label=None)
+    b = ensure_key(b, label=b_label)
+
+    # 2) Build unified set of "month" columns (everything except key)
+    a_cols = [c for c in a.columns if c != key]
+    b_cols = [c for c in b.columns if c != key]
+    all_cols = sorted(set(a_cols) | set(b_cols))
+
+    # 3) Ensure both frames have all month columns
+    for c in all_cols:
+        if c not in a.columns:
+            a[c] = 0
+        if c not in b.columns:
+            b[c] = 0
+
+    # 4) Order columns and stack rows
+    a = a[[key] + all_cols]
+    b = b[[key] + all_cols]
+    out = pd.concat([a, b], ignore_index=True)
+
+    return out
 
 
 def add_totals_and_result(
@@ -83,48 +109,55 @@ def add_totals_and_result(
     total_spend_label: str = "gastos_total",
     result_label: str = "ganancia",
     total_col_name: str = "TOTAL",
+    avg_col_name: str = "AVG",
 ) -> pd.DataFrame:
-    """
-    spendings: pivot table with rows=seccion, cols=months (YYYY-MM), values=spendings
-    facturacion: pivot table with one row OR a dataframe containing month columns
-                (it can have 'concepto' or 'cliente' etc; we only take the month columns)
-    """
 
     out = spendings.copy()
 
     # Identify month columns (everything except seccion)
     month_cols = [c for c in out.columns if c != seccion_col]
 
-    # --- TOTAL column per row (sum across months)
+    # --- TOTAL + AVG per row (sum/mean across months)
     out[total_col_name] = out[month_cols].sum(axis=1)
+    out[avg_col_name] = out[month_cols].mean(axis=1)
 
     # --- Total spendings row (sum across all spendings rows, per month)
     total_spend_series = out[month_cols].sum(axis=0)
+    total_spend_total = float(total_spend_series.sum())
+    total_spend_avg = float(total_spend_series.mean())
+
     total_spend_row = pd.DataFrame(
-        [[total_spend_label] + total_spend_series.tolist() + [total_spend_series.sum()]],
-        columns=[seccion_col] + month_cols + [total_col_name],
+        [[total_spend_label]
+         + total_spend_series.tolist()
+         + [total_spend_total, total_spend_avg]],
+        columns=[seccion_col] + month_cols + [total_col_name, avg_col_name],
     )
 
-    # --- Facturacion row (align columns; supports 1-row df)
-    # Take only month columns that exist in spendings, fill missing with 0
+    # --- Facturacion row (align months to spendings)
     fact_months = [c for c in facturacion.columns if c in month_cols]
+    fact_series = facturacion[fact_months].sum(axis=0).reindex(month_cols).fillna(0)
 
-    # If facturacion has multiple rows, sum them (safe default)
-    fact_series = facturacion[fact_months].sum(axis=0)
-
-    # Ensure all months exist
-    fact_series = fact_series.reindex(month_cols).fillna(0)
+    fact_total = float(fact_series.sum())
+    fact_avg = float(fact_series.mean())
 
     fact_row = pd.DataFrame(
-        [[fact_row_label] + fact_series.tolist() + [fact_series.sum()]],
-        columns=[seccion_col] + month_cols + [total_col_name],
+        [[fact_row_label]
+         + fact_series.tolist()
+         + [fact_total, fact_avg]],
+        columns=[seccion_col] + month_cols + [total_col_name, avg_col_name],
     )
 
     # --- Resultado row = facturacion - total spendings (per month)
     result_series = fact_series - total_spend_series.reindex(month_cols).fillna(0)
+
+    result_total = float(result_series.sum())
+    result_avg = float(result_series.mean())
+
     result_row = pd.DataFrame(
-        [[result_label] + result_series.tolist() + [result_series.sum()]],
-        columns=[seccion_col] + month_cols + [total_col_name],
+        [[result_label]
+         + result_series.tolist()
+         + [result_total, result_avg]],
+        columns=[seccion_col] + month_cols + [total_col_name, avg_col_name],
     )
 
     # Append rows

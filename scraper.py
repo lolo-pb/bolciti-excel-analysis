@@ -18,26 +18,6 @@ def _clear_res_folder():
             p.unlink()
 
 
-def _set_date_jquery_ui(page, input_selector: str, target: date):
-    page.locator(input_selector).click()
-    dp = page.locator("#ui-datepicker-div")
-
-    # Prefer dropdowns if the widget has them
-    month_select = dp.locator("select.ui-datepicker-month")
-    year_select = dp.locator("select.ui-datepicker-year")
-
-    if month_select.count() > 0 and year_select.count() > 0:
-        month_select.select_option(str(target.month - 1))  # 0-11
-        year_select.select_option(str(target.year))
-    else:
-        # Fallback: keep it simple; if needed we can implement smart prev/next logic later
-        # This fallback does NOT guarantee correct month if the widget starts far away.
-        pass
-
-    dp.get_by_role("link", name=str(target.day), exact=True).click()
-
-from datetime import date
-
 def _set_date_by_string(page, input_selector: str, target: date):
     # 1) Make sure the element exists first
     page.wait_for_selector(input_selector, state="attached", timeout=30_000)
@@ -107,7 +87,9 @@ def scrape_exports_url(start: date, end: date, url, name: str) -> dict[str, Path
         "sueldos": RES_DIR / f"sueldos-{name}.xlsx",
         "ventas_facturas": RES_DIR / f"facturas-{name}.xlsx",
         "compras_gastos": RES_DIR / f"gastos-{name}.xlsx",
+        "compras_mercaderia": RES_DIR / f"stock-{name}.xlsx",  # NEW
     }
+
 
     with sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome", headless=True)    
@@ -157,6 +139,19 @@ def scrape_exports_url(start: date, end: date, url, name: str) -> dict[str, Path
                 end=end,
                 out_path=outputs["compras_gastos"],
             )
+
+            # 4) Compras - Facturas Mercaderia
+            _open_menu_section(page, "Compras Proveedores Facturas")
+            page.get_by_role("link", name="Facturas Mercaderia").click(timeout=60_000)
+            _export_report(
+                page,
+                from_input="#ctl00_ContentPlaceHolder1_Filtro_2",
+                to_input="#ctl00_ContentPlaceHolder1_Filtro_3",
+                start=start,
+                end=end,
+                out_path=outputs["compras_mercaderia"],
+            )
+
 
         except Exception:
             Path("out").mkdir(exist_ok=True)

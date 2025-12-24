@@ -110,7 +110,7 @@ def scrape_exports_url(start: date, end: date, url, name: str) -> dict[str, Path
     }
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(channel="chrome", headless=True)    
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
 

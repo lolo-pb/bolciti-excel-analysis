@@ -103,8 +103,10 @@ SECTION_MAP = {
 
     # ALQUILER
     "ALQUILER": "alquiler",
-    "ABONO MENSUAL ALQUILER": "alquiler",
     "LEASING": "alquiler",
+
+    # ALQUILER HUALFIN
+    "ABONO MENSUAL ALQUILER": "hualfin",
 
     # INVERSIONES
     "INVERSIONES": "inversiones",

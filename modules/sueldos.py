@@ -9,6 +9,7 @@ SECTION_MAP = {
     "JAVIER EDUARDO PAZ": "confeccion",
     "JORGE LUIS LEITES": "confeccion",
     "MARCELO CESAR UBOLDI": "confeccion",
+    "SERGIO DAMIAN ARRIETA ":"confeccion",
 
     # Impresión
     "ENRIQUE CORDOBA": "impresion",
@@ -23,21 +24,21 @@ SECTION_MAP = {
     # Echado
     "MATIAS LEONARDO MORENO": "echado",
     "BRIZUELA HERNAN":"echado",
+    "LEONARDO LEDESMA":"echado",
+
 
     # Oficina
     "CARLOS GUSTAVO CAPPONI": "oficina",
     "NORMA MABEL PASCUAL": "oficina",
     "GUILLERMO PIZZUTO": "oficina",
+    "ROSA BEATRIZ DI PAOLO":"oficina",
+    "BRIAN NAHUEL SOTO":"oficina",
 
     # General
     "COLINA POLANCO ALAIN ANTONIO": "gral",
-    "BRIAN NAHUEL SOTO":"gral",
 
 
     ## Desconocidos caen en gral
-    #"LEONARDO LEDESMA":"",
-    #"ROSA BEATRIZ DI PAOLO":"",
-    #"SERGIO DAMIAN ARRIETA ":"",
 }
 
 def build_sueldos_by_employee() -> pd.DataFrame:

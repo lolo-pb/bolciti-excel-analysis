@@ -1,5 +1,5 @@
 import pandas as pd
-from helpers import sanitize, standardize_columns, normalize_names, pivot_by_period
+from modules.helpers import sanitize, standardize_columns, normalize_names, pivot_by_period
 
 def build_stock() -> pd.DataFrame:
     ## Processing raw input
@@ -30,5 +30,4 @@ def build_stock() -> pd.DataFrame:
     # pivot: one column per month, totals summed
     stock = pivot_by_period(stock,"fecha",[],"total")
 
-    print(stock.head())
     return stock

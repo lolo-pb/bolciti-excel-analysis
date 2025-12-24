@@ -58,21 +58,48 @@ def sanitize( df: pd.DataFrame, descriptor_cols: Iterable[str]) -> pd.DataFrame:
     return df[~mask_bad]
 
 
-def join_pivots(df_a: pd.DataFrame, df_b: pd.DataFrame, fill_value=0) -> pd.DataFrame:
-    # make sure seccion is index so concat aligns by month columns
-    a = df_a.set_index("seccion")
-    b = df_b.set_index("seccion")
+def join_pivots(a: pd.DataFrame, b: pd.DataFrame, *, key: str = "seccion", b_label: str | None = None) -> pd.DataFrame:
+    a = a.copy()
+    b = b.copy()
 
-    # union rows + union columns
-    out = pd.concat([a, b], axis=0, sort=True)
+    # 1) Normalize the "key" column name on both sides
+    def ensure_key(df: pd.DataFrame, label: str | None) -> pd.DataFrame:
+       if "seccion" in df.columns:
+           return df
 
-    # consistent column order (chronological)
-    out = out.reindex(sorted(out.columns), axis=1)
+       # common case: pivot_by_period(index_cols=[]) gives an "index" column
+       if "index" in df.columns:
+           df = df.rename(columns={"index": "seccion"})
+           if label is not None:
+               df["seccion"] = label   # ✅ force label (so "total" becomes "stock")
+           return df
 
-    # fill missing month cells
-    out = out.fillna(fill_value)
+       # fallback: create seccion
+       df.insert(0, "seccion", label if label is not None else "total")
+       return df
 
-    return out.reset_index()
+    a = ensure_key(a, label=None)
+    b = ensure_key(b, label=b_label)
+
+    # 2) Build unified set of "month" columns (everything except key)
+    a_cols = [c for c in a.columns if c != key]
+    b_cols = [c for c in b.columns if c != key]
+    all_cols = sorted(set(a_cols) | set(b_cols))
+
+    # 3) Ensure both frames have all month columns
+    for c in all_cols:
+        if c not in a.columns:
+            a[c] = 0
+        if c not in b.columns:
+            b[c] = 0
+
+    # 4) Order columns and stack rows
+    a = a[[key] + all_cols]
+    b = b[[key] + all_cols]
+    out = pd.concat([a, b], ignore_index=True)
+
+    return out
+
 
 
 def add_totals_and_result(

@@ -101,7 +101,6 @@ def join_pivots(a: pd.DataFrame, b: pd.DataFrame, *, key: str = "seccion", b_lab
     return out
 
 
-
 def add_totals_and_result(
     spendings: pd.DataFrame,
     facturacion: pd.DataFrame,
@@ -110,48 +109,55 @@ def add_totals_and_result(
     total_spend_label: str = "gastos_total",
     result_label: str = "ganancia",
     total_col_name: str = "TOTAL",
+    avg_col_name: str = "AVG",
 ) -> pd.DataFrame:
-    """
-    spendings: pivot table with rows=seccion, cols=months (YYYY-MM), values=spendings
-    facturacion: pivot table with one row OR a dataframe containing month columns
-                (it can have 'concepto' or 'cliente' etc; we only take the month columns)
-    """
 
     out = spendings.copy()
 
     # Identify month columns (everything except seccion)
     month_cols = [c for c in out.columns if c != seccion_col]
 
-    # --- TOTAL column per row (sum across months)
+    # --- TOTAL + AVG per row (sum/mean across months)
     out[total_col_name] = out[month_cols].sum(axis=1)
+    out[avg_col_name] = out[month_cols].mean(axis=1)
 
     # --- Total spendings row (sum across all spendings rows, per month)
     total_spend_series = out[month_cols].sum(axis=0)
+    total_spend_total = float(total_spend_series.sum())
+    total_spend_avg = float(total_spend_series.mean())
+
     total_spend_row = pd.DataFrame(
-        [[total_spend_label] + total_spend_series.tolist() + [total_spend_series.sum()]],
-        columns=[seccion_col] + month_cols + [total_col_name],
+        [[total_spend_label]
+         + total_spend_series.tolist()
+         + [total_spend_total, total_spend_avg]],
+        columns=[seccion_col] + month_cols + [total_col_name, avg_col_name],
     )
 
-    # --- Facturacion row (align columns; supports 1-row df)
-    # Take only month columns that exist in spendings, fill missing with 0
+    # --- Facturacion row (align months to spendings)
     fact_months = [c for c in facturacion.columns if c in month_cols]
+    fact_series = facturacion[fact_months].sum(axis=0).reindex(month_cols).fillna(0)
 
-    # If facturacion has multiple rows, sum them (safe default)
-    fact_series = facturacion[fact_months].sum(axis=0)
-
-    # Ensure all months exist
-    fact_series = fact_series.reindex(month_cols).fillna(0)
+    fact_total = float(fact_series.sum())
+    fact_avg = float(fact_series.mean())
 
     fact_row = pd.DataFrame(
-        [[fact_row_label] + fact_series.tolist() + [fact_series.sum()]],
-        columns=[seccion_col] + month_cols + [total_col_name],
+        [[fact_row_label]
+         + fact_series.tolist()
+         + [fact_total, fact_avg]],
+        columns=[seccion_col] + month_cols + [total_col_name, avg_col_name],
     )
 
     # --- Resultado row = facturacion - total spendings (per month)
     result_series = fact_series - total_spend_series.reindex(month_cols).fillna(0)
+
+    result_total = float(result_series.sum())
+    result_avg = float(result_series.mean())
+
     result_row = pd.DataFrame(
-        [[result_label] + result_series.tolist() + [result_series.sum()]],
-        columns=[seccion_col] + month_cols + [total_col_name],
+        [[result_label]
+         + result_series.tolist()
+         + [result_total, result_avg]],
+        columns=[seccion_col] + month_cols + [total_col_name, avg_col_name],
     )
 
     # Append rows

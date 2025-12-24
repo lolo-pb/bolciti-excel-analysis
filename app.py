@@ -58,8 +58,6 @@ class App(tk.Tk):
         self.run_btn = ttk.Button(root, text="Run", command=self.on_run)
         self.run_btn.grid(row=4, column=0, sticky="w", pady=(10, 0))
 
-        ttk.Button(root, text="Quit", command=self.destroy).grid(row=4, column=1, sticky="w", padx=(12, 0), pady=(10, 0))
-
         # Status
         ttk.Separator(root).grid(row=5, column=0, columnspan=3, sticky="we", pady=(14, 10))
         ttk.Label(root, textvariable=self.status_var).grid(row=6, column=0, columnspan=3, sticky="w")
@@ -121,15 +119,6 @@ class App(tk.Tk):
             self.after(0, self._on_success, output_path)
 
     def _call_backend(self, start: date, end: date, output_path: Path):
-        """
-        Calls your backend.
-
-        Supports BOTH controller styles:
-          A) recommended: run_controller(start, end, output_path)
-          B) old style:   run_controller()  (hardcoded dates/output inside controller)
-        If you haven't updated controller.py yet, it will still run (style B),
-        but the UI-selected values won't be used.
-        """
         import controller  # local import so UI loads even if backend errors early
 
         if not hasattr(controller, "run_controller"):
